@@ -34,9 +34,17 @@
                 
                 <!-- Theme and Action Panel -->
                 <div class="header-actions">
-                    <button id="theme-toggle" class="btn-action" title="Toggle Theme">
-                        <i class="fa-solid fa-sun icon-sun"></i>
-                        <i class="fa-solid fa-moon icon-moon"></i>
+                    <div class="theme-switch-wrapper" title="Switch Theme">
+                        <i class="fa-solid fa-moon theme-switch-icon"></i>
+                        <label class="theme-switch" for="theme-checkbox">
+                            <input type="checkbox" id="theme-checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                        <i class="fa-solid fa-sun theme-switch-icon"></i>
+                    </div>
+                    <button id="export-csv-btn" class="btn-secondary" title="Export current filtered list to CSV">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span>Export CSV</span>
                     </button>
                     <button id="refresh-btn" class="btn-primary">
                         <i class="fa-solid fa-arrows-rotate icon-refresh"></i>

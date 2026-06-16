@@ -305,27 +305,97 @@ body {
     transform: translateY(-1px);
 }
 
-.btn-action {
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    border-radius: 12px;
+/* Custom Theme Switch Slider */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
     background: var(--btn-secondary-bg);
     border: 1px solid var(--btn-secondary-border);
-    color: var(--text-heading);
-    font-size: 1.1rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 50px;
+    height: 44px;
+    transition: background var(--transition-normal), border var(--transition-normal);
 }
 
-.btn-action:hover {
-    background: var(--btn-secondary-hover);
-    transform: translateY(-1px);
+.theme-switch-icon {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    transition: color var(--transition-fast);
 }
 
-/* Toggle Theme Icons Display */
-body.dark-theme .icon-sun { display: block; }
-body.dark-theme .icon-moon { display: none; }
-body.light-theme .icon-sun { display: none; }
-body.light-theme .icon-moon { display: block; }
+body.dark-theme .theme-switch-icon.fa-moon {
+    color: #8b5cf6; /* Highlight active mode */
+}
+
+body.light-theme .theme-switch-icon.fa-sun {
+    color: #eab308; /* Highlight active mode */
+}
+
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 20px;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: var(--transition-normal);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.light-theme .slider {
+    background-color: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--text-muted);
+    transition: var(--transition-normal);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+body.light-theme .slider:before {
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+input:checked + .slider {
+    background: var(--accent-gradient);
+    border-color: transparent;
+}
+
+input:checked + .slider:before {
+    transform: translateX(18px);
+    background-color: #ffffff;
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
 
 /* Rotating Sync Spinner */
 .icon-refresh.spinning {

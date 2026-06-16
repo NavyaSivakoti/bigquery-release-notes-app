@@ -9,7 +9,8 @@ let activeHashtags = [];
 let activeNote = null;
 
 // DOM Elements
-const themeToggle = document.getElementById('theme-toggle');
+const themeCheckbox = document.getElementById('theme-checkbox');
+const exportCsvBtn = document.getElementById('export-csv-btn');
 const refreshBtn = document.getElementById('refresh-btn');
 const searchInput = document.getElementById('search-input');
 const clearSearchBtn = document.getElementById('clear-search');
@@ -65,8 +66,8 @@ function setupEventListeners() {
     refreshBtn.addEventListener('click', () => loadUpdates(true));
     statusRetryBtn.addEventListener('click', () => loadUpdates(true));
     
-    // Theme Toggle
-    themeToggle.addEventListener('click', toggleTheme);
+    // Theme Toggle Switch
+    themeCheckbox.addEventListener('change', toggleTheme);
     
     // Search
     searchInput.addEventListener('input', handleSearch);
@@ -101,9 +102,10 @@ function setupEventListeners() {
         });
     });
     
-    // Share actions
+    // Share & Export actions
     copyTweetBtn.addEventListener('click', copyTweetToClipboard);
     postTweetBtn.addEventListener('click', postTweetToX);
+    exportCsvBtn.addEventListener('click', exportToCSV);
 }
 
 // ==========================================================================
@@ -114,14 +116,16 @@ function initTheme() {
     if (savedTheme === 'light') {
         document.body.classList.remove('dark-theme');
         document.body.classList.add('light-theme');
+        themeCheckbox.checked = true;
     } else {
         document.body.classList.remove('light-theme');
         document.body.classList.add('dark-theme');
+        themeCheckbox.checked = false;
     }
 }
 
-function toggleTheme() {
-    if (document.body.classList.contains('dark-theme')) {
+function toggleTheme(e) {
+    if (e.target.checked) {
         document.body.classList.remove('dark-theme');
         document.body.classList.add('light-theme');
         localStorage.setItem('theme', 'light');
@@ -309,6 +313,9 @@ function renderCards(updates) {
                 ${update.content}
             </div>
             <div class="card-actions">
+                <button class="btn-secondary copy-trigger-btn" title="Copy text to clipboard">
+                    <i class="fa-regular fa-copy"></i> Copy Note
+                </button>
                 <button class="btn-tweet-card tweet-trigger-btn">
                     <i class="fa-brands fa-x-twitter"></i> Tweet Update
                 </button>
@@ -326,6 +333,17 @@ function renderCards(updates) {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 openComposer(update);
+            });
+        });
+
+        // Add click listener to copy button in this card
+        card.querySelector('.copy-trigger-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(update.plain_text).then(() => {
+                showToast('Note copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('Failed to copy text', true);
             });
         });
         
@@ -492,4 +510,43 @@ function showToast(message, isError = false) {
             toast.style.display = 'none';
         }, 300);
     }, 3000);
+}
+
+// ==========================================================================
+// EXPORT TO CSV
+// ==========================================================================
+function exportToCSV() {
+    if (filteredUpdates.length === 0) {
+        showToast('No updates to export!', true);
+        return;
+    }
+    
+    const headers = ['Date', 'Category', 'Update Content', 'Direct Link'];
+    const rows = filteredUpdates.map(u => [
+        u.date,
+        u.type,
+        u.plain_text.replace(/"/g, '""'),
+        u.link
+    ]);
+    
+    const csvRows = [headers.join(',')];
+    rows.forEach(row => {
+        const escapedRow = row.map(val => `"${val}"`).join(',');
+        csvRows.push(escapedRow);
+    });
+    
+    const csvString = csvRows.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    const timestamp = new Date().toISOString().split('T')[0];
+    link.setAttribute("download", `bigquery_release_notes_${timestamp}.csv`);
+    document.body.appendChild(link);
+    
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('CSV Exported successfully!');
 }
